@@ -16,19 +16,25 @@ find_package(VTK COMPONENTS
 )
 find_package(pybind11 REQUIRED)
 
-pybind11_add_module(${PROJECT_NAME} PyWrap.cxx)
-
 if (NOT VTK_FOUND)
   message(FATAL_ERROR "Cone: Unable to find the VTK build folder.")
 endif()
 
-# Prevent a "command line is too long" failure in Windows.
-set(CMAKE_NINJA_FORCE_RESPONSE_FILE "ON" CACHE BOOL "Force Ninja to use response files.")
-add_executable(Cone MACOSX_BUNDLE Cone.cxx )
-  target_link_libraries(Cone PRIVATE ${VTK_LIBRARIES}
+set(CONE_PYBIND11_FLAGS "-Wno-shadow")
+
+set(library_name "Cone")
+pybind11_add_module(${library_name} PyWrap.cxx)
+target_include_directories(${library_name} PUBLIC
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
 )
+target_link_libraries(${library_name} LINK_PUBLIC ${VTK_LIBRARIES})
+set_target_properties(${library_name}
+  PROPERTIES
+    CXX_VISIBILITY_PRESET hidden
+    COMPILE_FLAGS ${CONE_PYBIND11_FLAGS}
+  )
 # vtk_module_autoinit is needed
 vtk_module_autoinit(
-  TARGETS Cone
+  TARGETS ${library_name}
   MODULES ${VTK_LIBRARIES}
 )
