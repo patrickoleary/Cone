@@ -1,14 +1,16 @@
 #include "Cone.h"
 
+#include <vtkRendererCollection.h>
+
 Cone::Cone() {
   this->coneSource = vtkSmartPointer<vtkConeSource>::New();
 }
 
-Cone::Initialize(vtkSmartPointer<vtkRenderer> renderWindow) {
+void Cone::Initialize(vtkSmartPointer<vtkRenderWindow> renderWindow) {
   this->renderWindow = renderWindow;
   vtkSmartPointer<vtkRenderer> renderer = renderWindow->GetRenderers()->GetFirstRenderer();
-  vtkNew<vtkPolyDataMapper> mapper = vtkPolyDataMapper();
-  vtkNew<vtkActor> actor = vtkActor();
+  vtkNew<vtkPolyDataMapper> mapper;
+  vtkNew<vtkActor> actor;
 
   mapper->SetInputConnection(coneSource->GetOutputPort());
   actor->SetMapper(mapper);
@@ -18,12 +20,12 @@ Cone::Initialize(vtkSmartPointer<vtkRenderer> renderWindow) {
   // this->renderWindow->Render(); // Done on Python side
 }
 
-Cone::ResetCamera() {
+void Cone::ResetCamera() {
   this->renderWindow->GetRenderers()->GetFirstRenderer()->ResetCamera();
   // this->renderWindow->Render(); // Done on Python side
 }
 
-Cone::SetResolution(int resolution) {
+void Cone::SetResolution(int resolution) {
   this->coneSource->SetResolution(resolution);
   // this->renderWindow->Render(); // Done on Python side
 }

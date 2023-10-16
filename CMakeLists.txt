@@ -13,6 +13,7 @@ find_package(VTK COMPONENTS
   RenderingFreeType
   RenderingGL2PSOpenGL2
   RenderingOpenGL2
+  WrappingPythonCore
 )
 find_package(pybind11 REQUIRED)
 
@@ -23,16 +24,18 @@ endif()
 set(CONE_PYBIND11_FLAGS "-Wno-shadow")
 
 set(library_name "Cone")
-pybind11_add_module(${library_name} PyWrap.cxx)
+pybind11_add_module(${library_name} PyWrap.cxx Cone.cxx)
 target_include_directories(${library_name} PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
+  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
 )
-target_link_libraries(${library_name} LINK_PUBLIC ${VTK_LIBRARIES})
+target_link_libraries(${library_name} PRIVATE ${VTK_LIBRARIES})
 set_target_properties(${library_name}
   PROPERTIES
     CXX_VISIBILITY_PRESET hidden
     COMPILE_FLAGS ${CONE_PYBIND11_FLAGS}
   )
+generate_export_header(${library_name}) 
 # vtk_module_autoinit is needed
 vtk_module_autoinit(
   TARGETS ${library_name}
